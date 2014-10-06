@@ -18,6 +18,7 @@ namespace PixivUtilCS
         public String ArtistName = "";
         public String SmallImageURL = "";
         public String BigImageURL = "";
+        public String ArtistUsername = "";
 
         public String DatePublished = "";
         public String Program = "";
@@ -28,7 +29,6 @@ namespace PixivUtilCS
         public String Views = "";
         public String Description = "";
         public bool isManga = false;
-        public String authorName = "";
         public String bookmarks = "";
 
         public String URLBase = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id=";
@@ -70,6 +70,7 @@ namespace PixivUtilCS
                         this.isManga = true;
                     }
                     this.bookmarks = IllustrationComponents[22];
+                    this.ArtistUsername = IllustrationComponents[24];
                 }
 
                 else
@@ -92,6 +93,7 @@ namespace PixivUtilCS
                         this.BigImageURL = IllustrationComponents[9];
                         this.DatePublished = IllustrationComponents[12];
                         this.tags = IllustrationComponents[13].Split(' ');
+                        this.ArtistUsername = illustrationStringParts[illustrationStringParts.Length - 7];
 
                         this.URLBase += this.IllustrationID;
                         HtmlDocument doc = new HtmlDocument();
@@ -144,7 +146,16 @@ namespace PixivUtilCS
                         {
                             if (!File.Exists(Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "_p" + i + "." + this.FileFormat))
                             {
-                                String s = this.BigImageURL.Replace("mobile/", "").Replace("480mw", "p" + i).Replace(".jpg", "." + this.FileFormat);
+                                String s;
+
+                                if (this.BigImageURL.Contains("master"))
+                                {
+                                    s = this.BigImageURL.Replace("480x960", "1200x1200").Replace("480mw", "p" + i + "_master1200");
+                                }
+                                else
+                                {
+                                    s = this.BigImageURL.Replace("mobile/", "").Replace("480mw", "p" + i).Replace(".jpg", "." + this.FileFormat);
+                                }
                                 Console.WriteLine("Image url: " + s);
                                 HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(s);
 
@@ -181,7 +192,16 @@ namespace PixivUtilCS
                     {
                         if (!File.Exists(Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "." + this.FileFormat))
                         {
-                            String s = this.BigImageURL.Replace("mobile/", "").Replace("_480mw", "").Replace(".jpg", "." + this.FileFormat);
+                            String s;
+
+                            if (this.BigImageURL.Contains("master"))
+                            {
+                                s = this.BigImageURL.Replace("/c/128x128/img-master/", "/img-original/").Replace("_128x128", "_p0");
+                            }
+                            else
+                            {
+                                s = this.BigImageURL.Replace("mobile/", "").Replace("_480mw", "").Replace(".jpg", "." + this.FileFormat);
+                            }
                             Console.WriteLine("Image url: " + s);
                             HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(s);
 

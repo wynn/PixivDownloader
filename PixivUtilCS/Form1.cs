@@ -17,6 +17,7 @@ namespace PixivUtilCS
         Pixiv pixiv;
         bool adultContent;
         Pixiv.ImageSearchOptions imageSearchOption;
+        int pagesToDownload = 0;
 
         public Form1()
         {     
@@ -41,6 +42,16 @@ namespace PixivUtilCS
                 return;
             }
 
+            try
+            {
+                pagesToDownload = Convert.ToInt32(textBoxPages.Text);
+            }
+            catch
+            {
+                MessageBox.Show("Error parsing the amount of pages to download!");
+                return;
+            }
+
             StartThread(pixiv);
         }
 
@@ -50,7 +61,6 @@ namespace PixivUtilCS
 
             adultContent = comboBoxAdultContent.SelectedIndex == 1;
             imageSearchOption = (Pixiv.ImageSearchOptions)comboBoxImageTypes.SelectedItem;
-
             backgroundWorker1.RunWorkerAsync(pixiv);
             button1.Enabled = false;
         }
@@ -63,13 +73,13 @@ namespace PixivUtilCS
             worker = (System.ComponentModel.BackgroundWorker)sender;
 
             pixiv.DownloadImages(worker, e, textBoxSearchTags.Text, 
-                adultContent, imageSearchOption, 1);
+                adultContent, imageSearchOption, 1, pagesToDownload);
         }
         
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             PixivUtilCS.CurrentState state = (PixivUtilCS.CurrentState)e.UserState;
-            StatusLabel.Text = state.Status;
+            StatusLabel.Text = "Status: " + state.Status;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

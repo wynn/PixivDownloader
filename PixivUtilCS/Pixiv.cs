@@ -33,7 +33,7 @@ namespace PixivUtilCS
 
         struct ImageAttributes
         {
-            public String IllustrationURL;
+            public String IllustrationID;
             public String Title;
         }
 
@@ -68,23 +68,24 @@ namespace PixivUtilCS
         }
 
         public void DownloadImages(System.ComponentModel.BackgroundWorker worker,
-        System.ComponentModel.DoWorkEventArgs e, String tags, bool r18, ImageSearchOptions imageSearchOptions, int page)
+        System.ComponentModel.DoWorkEventArgs e, String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage, int maximumPagesToDownload)
         {
             List<Illustration> illusts = new List<Illustration>();
             do
             {
-                illusts = Search(tags, r18, imageSearchOptions, page);
+                illusts = Search(tags, r18, imageSearchOptions, currentPage);
                 Illustrations.AddRange(illusts);
-                page++;
+                currentPage++;
                 state.Status = Illustrations.Count + " images found...";
                 worker.ReportProgress(0, state);
-            } while (illusts.Count == 20);
+            } while (illusts.Count == 20 && currentPage <= maximumPagesToDownload);
 
             if (Illustrations.Count > 0)
             {
+                int count = 0;
                 foreach (Illustration i in Illustrations)
                 {
-                    state.Status = "Downloading image id: " + i.IllustrationID;
+                    state.Status = "Images downloaded: " + count++ + "  Downloading image id: " + i.IllustrationID;
                     worker.ReportProgress(0, state);
                     i.DownloadImage();
                 }
@@ -112,19 +113,19 @@ namespace PixivUtilCS
         }
 
         //Returns a list of illustrations on a given page
-        public List<Illustration> Search(String tags, bool r18, ImageSearchOptions imageSearchOptions, int page)
+        public List<Illustration> Search(String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage)
         {
             string result = "";
             string url = "search.php?" + "word=" + tags + "&order=date_d" + (r18 ? "&r18=1" : "");
 
             if (imageSearchOptions == ImageSearchOptions.ILLUSTRATIONS) {
-                result = client.DownloadString(url + "&type=illust&p=" + page);
+                result = client.DownloadString(url + "&type=illust&p=" + currentPage);
             }
             else if (imageSearchOptions == ImageSearchOptions.ALL) {
-                result = client.DownloadString(url + "&type=0&p=" + page);
+                result = client.DownloadString(url + "&type=0&p=" + currentPage);
             }
             else if (imageSearchOptions == ImageSearchOptions.MANGA) {
-                result = client.DownloadString(url + "&type=manga&p=" + page);
+                result = client.DownloadString(url + "&type=manga&p=" + currentPage);
             }
 
             HtmlAgilityPack.HtmlDocument HTMLParser = new HtmlAgilityPack.HtmlDocument();
@@ -137,7 +138,7 @@ namespace PixivUtilCS
 
             foreach (ImageAttributes i in imageAttributes)
             {
-                illustrations.Add(new Illustration(client.DownloadString(s + i.IllustrationURL)));
+                illustrations.Add(new Illustration(client.DownloadString(s + i.IllustrationID)));
             }
 
             return illustrations;
@@ -176,10 +177,11 @@ namespace PixivUtilCS
                    where lnks.Name == "a" &&
                         lnks.Attributes["href"] != null &&
                         lnks.Attributes["href"].Value.Contains(";illust_id") &&
+                        !lnks.Attributes["href"].Value.Contains("showcase") &&
                         lnks.InnerText.Trim().Length > 0
                    select new ImageAttributes
                    {
-                       IllustrationURL = lnks.Attributes["href"].Value.Substring(lnks.Attributes["href"].Value.IndexOf("id=") + "id=".Length),
+                       IllustrationID = lnks.Attributes["href"].Value.Substring(lnks.Attributes["href"].Value.IndexOf("id=") + "id=".Length),
                        Title = lnks.InnerText
                    };
         }

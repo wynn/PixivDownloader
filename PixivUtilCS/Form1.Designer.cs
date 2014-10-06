@@ -43,6 +43,8 @@
             this.comboBoxAdultContent = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.textBoxPages = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,15 +52,15 @@
             // 
             this.comboBoxImageTypes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxImageTypes.FormattingEnabled = true;
-            this.comboBoxImageTypes.Location = new System.Drawing.Point(18, 199);
+            this.comboBoxImageTypes.Location = new System.Drawing.Point(10, 200);
             this.comboBoxImageTypes.Name = "comboBoxImageTypes";
-            this.comboBoxImageTypes.Size = new System.Drawing.Size(160, 21);
+            this.comboBoxImageTypes.Size = new System.Drawing.Size(112, 21);
             this.comboBoxImageTypes.TabIndex = 1;
             // 
             // StatusLabel
             // 
             this.StatusLabel.AutoSize = true;
-            this.StatusLabel.Location = new System.Drawing.Point(15, 232);
+            this.StatusLabel.Location = new System.Drawing.Point(10, 230);
             this.StatusLabel.Name = "StatusLabel";
             this.StatusLabel.Size = new System.Drawing.Size(40, 13);
             this.StatusLabel.TabIndex = 1;
@@ -66,7 +68,7 @@
             // 
             // textBoxSearchTags
             // 
-            this.textBoxSearchTags.Location = new System.Drawing.Point(18, 158);
+            this.textBoxSearchTags.Location = new System.Drawing.Point(10, 155);
             this.textBoxSearchTags.Name = "textBoxSearchTags";
             this.textBoxSearchTags.Size = new System.Drawing.Size(335, 20);
             this.textBoxSearchTags.TabIndex = 2;
@@ -74,7 +76,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 143);
+            this.label1.Location = new System.Drawing.Point(10, 140);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(224, 13);
             this.label1.TabIndex = 3;
@@ -84,7 +86,7 @@
             // 
             this.button1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button1.BackgroundImage")));
             this.button1.ForeColor = System.Drawing.Color.Red;
-            this.button1.Location = new System.Drawing.Point(360, 145);
+            this.button1.Location = new System.Drawing.Point(360, 139);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(50, 50);
             this.button1.TabIndex = 4;
@@ -124,9 +126,9 @@
             this.groupBox1.Controls.Add(this.textBoxUsername);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Location = new System.Drawing.Point(10, 10);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(397, 115);
+            this.groupBox1.Size = new System.Drawing.Size(400, 115);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Login Details";
@@ -154,15 +156,15 @@
             this.comboBoxAdultContent.Items.AddRange(new object[] {
             "All images",
             "R-18 images only"});
-            this.comboBoxAdultContent.Location = new System.Drawing.Point(187, 199);
+            this.comboBoxAdultContent.Location = new System.Drawing.Point(130, 200);
             this.comboBoxAdultContent.Name = "comboBoxAdultContent";
-            this.comboBoxAdultContent.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxAdultContent.Size = new System.Drawing.Size(111, 21);
             this.comboBoxAdultContent.TabIndex = 8;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(18, 183);
+            this.label2.Location = new System.Drawing.Point(10, 180);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(59, 13);
             this.label2.TabIndex = 9;
@@ -171,17 +173,36 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(184, 183);
+            this.label5.Location = new System.Drawing.Point(130, 180);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(70, 13);
             this.label5.TabIndex = 10;
             this.label5.Text = "Adult content";
             // 
+            // textBoxPages
+            // 
+            this.textBoxPages.Location = new System.Drawing.Point(255, 200);
+            this.textBoxPages.Name = "textBoxPages";
+            this.textBoxPages.Size = new System.Drawing.Size(74, 20);
+            this.textBoxPages.TabIndex = 11;
+            this.textBoxPages.Text = "99999";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(255, 180);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(98, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Pages to download";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(419, 253);
+            this.ClientSize = new System.Drawing.Size(419, 251);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.textBoxPages);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBoxAdultContent);
@@ -217,6 +238,8 @@
         private System.Windows.Forms.ComboBox comboBoxAdultContent;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBoxPages;
+        private System.Windows.Forms.Label label6;
     }
 }
 
