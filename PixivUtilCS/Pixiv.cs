@@ -40,6 +40,7 @@ namespace PixivUtilCS
         public class CookieAwareWebClient : WebClient
         {
             private CookieContainer cookie = new CookieContainer();
+            private Cookie PHPSESSID = new Cookie();
 
             protected override WebRequest GetWebRequest(Uri address)
             {
@@ -48,7 +49,16 @@ namespace PixivUtilCS
                 {
                     (request as HttpWebRequest).CookieContainer = cookie;
                 }
+                if (cookie.Count > 0)
+                {
+                    PHPSESSID = cookie.GetCookies(address)[0];
+                }
                 return request;
+            }
+
+            public Cookie getPHPSESSID()
+            {
+                return PHPSESSID;
             }
         }
 
@@ -56,6 +66,7 @@ namespace PixivUtilCS
 
         List<Illustration> Illustrations = new List<Illustration>();
         CurrentState state;
+        const int ImagesPerPage = 20;
 
         public Pixiv(String username, String password)
         {
@@ -71,28 +82,29 @@ namespace PixivUtilCS
         System.ComponentModel.DoWorkEventArgs e, String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage, int maximumPagesToDownload)
         {
             List<Illustration> illusts = new List<Illustration>();
-            do
-            {
-                illusts = Search(tags, r18, imageSearchOptions, currentPage);
-                Illustrations.AddRange(illusts);
-                currentPage++;
-                state.Status = Illustrations.Count + " images found...";
-                worker.ReportProgress(0, state);
-            } while (illusts.Count == 20 && currentPage <= maximumPagesToDownload);
+            int resultsFound = getNumberOfResultsFound(tags, r18, imageSearchOptions);   
+            int totalPages = resultsFound / ImagesPerPage + (resultsFound % 20 == 0 ? 0 : 1);
+            int imagesDownloaded = 0;
 
-            if (Illustrations.Count > 0)
+            if (resultsFound <= 0)
             {
-                int count = 0;
-                foreach (Illustration i in Illustrations)
+                state.Status = "No results found!";
+                worker.ReportProgress(0, state);
+                return;
+            }
+
+            state.Status = resultsFound + " results found.";
+            worker.ReportProgress(0, state);
+
+            for (int x = 0; x <= maximumPagesToDownload && x <= totalPages; x++)
+            {
+                foreach (Illustration i in IllustrationsOnPage(tags, r18, imageSearchOptions, currentPage))
                 {
-                    state.Status = "Images downloaded: " + count++ + "  Downloading image id: " + i.IllustrationID;
+                    state.Status = "Images downloaded: " + imagesDownloaded++ + "  Downloading image id: " + i.IllustrationID;
                     worker.ReportProgress(0, state);
                     i.DownloadImage();
                 }
-            }
-            else
-            {
-                state.Status = "No images to download!";
+                currentPage++;
             }
         }
 
@@ -112,24 +124,34 @@ namespace PixivUtilCS
             return client.DownloadString("mypage.php").Contains("pixiv.user.loggedIn = true");
         }
 
-        //Returns a list of illustrations on a given page
-        public List<Illustration> Search(String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage)
+        public HtmlAgilityPack.HtmlDocument Search(String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage)
         {
             string result = "";
             string url = "search.php?" + "word=" + tags + "&order=date_d" + (r18 ? "&r18=1" : "");
 
-            if (imageSearchOptions == ImageSearchOptions.ILLUSTRATIONS) {
+            if (imageSearchOptions == ImageSearchOptions.ILLUSTRATIONS)
+            {
                 result = client.DownloadString(url + "&type=illust&p=" + currentPage);
             }
-            else if (imageSearchOptions == ImageSearchOptions.ALL) {
+            else if (imageSearchOptions == ImageSearchOptions.ALL)
+            {
                 result = client.DownloadString(url + "&type=0&p=" + currentPage);
             }
-            else if (imageSearchOptions == ImageSearchOptions.MANGA) {
+            else if (imageSearchOptions == ImageSearchOptions.MANGA)
+            {
                 result = client.DownloadString(url + "&type=manga&p=" + currentPage);
             }
 
-            HtmlAgilityPack.HtmlDocument HTMLParser = new HtmlAgilityPack.HtmlDocument();
-            HTMLParser.LoadHtml(result);
+            HtmlAgilityPack.HtmlDocument page = new HtmlAgilityPack.HtmlDocument();
+            page.LoadHtml(result);
+
+            return page;
+        }
+
+        //Returns a list of illustrations on a given page
+        public List<Illustration> IllustrationsOnPage(String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage)
+        {
+            HtmlAgilityPack.HtmlDocument HTMLParser = Search(tags, r18, imageSearchOptions, currentPage);
 
             String s = "http://spapi.pixiv.net/iphone/illust.php?illust_id=";
 
@@ -138,24 +160,26 @@ namespace PixivUtilCS
 
             foreach (ImageAttributes i in imageAttributes)
             {
-                illustrations.Add(new Illustration(client.DownloadString(s + i.IllustrationID)));
+                illustrations.Add(new Illustration(client.DownloadString(s + i.IllustrationID + "&" + client.getPHPSESSID())));
             }
 
             return illustrations;
         }
 
-        public String getNumberOfResultsFound(HtmlAgilityPack.HtmlDocument page)
+        public int getNumberOfResultsFound(String tags, bool r18, ImageSearchOptions imageSearchOptions)
         {
-            var metaTags = page.DocumentNode.SelectNodes("//span");
+            HtmlAgilityPack.HtmlDocument HTMLParser = Search(tags, r18, imageSearchOptions, 1);
+
+            var metaTags = HTMLParser.DocumentNode.SelectNodes("//span");
 
             foreach (HtmlNode h in metaTags)
             {
                 if (h.InnerText.Contains("result") && !h.InnerText.Contains(" "))
                 {
-                    return h.InnerText + " found"; //prints "x results found"
+                    return Convert.ToInt32(h.InnerText.Replace("results", ""));
                 }
             }
-            return null;
+            return -1;
         }
 
         IEnumerable<AuthorAttributes> GetAuthorAttributes(HtmlAgilityPack.HtmlDocument page)
