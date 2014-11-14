@@ -66,6 +66,25 @@ namespace PixivUtilCS
             return temp;
         }
 
+        public HttpWebResponse sr(String uri)
+        {
+            HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(uri);
+            myRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip; 
+            myRequest.CookieContainer = new CookieContainer();
+            myRequest.CookieContainer.Add(Pixiv.PHPSESSID);
+
+            myRequest.Method = "GET";
+            myRequest.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.0; zh-CN; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6";
+            myRequest.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+            myRequest.Headers.Add("Accept-Language", "zh-cn,zh;q=0.7,ja;q=0.3");
+            myRequest.Headers.Add("Accept-Encoding", "gzip,deflate");
+            myRequest.Headers.Add("Accept-Charset", "gb18030,utf-8;q=0.7,*;q=0.7");
+            myRequest.Referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=38889015";
+
+            // Get response
+           return (HttpWebResponse)myRequest.GetResponse();
+        }
+
         public String useFilename = "";
 
         public String URLBase = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id=";
@@ -76,22 +95,29 @@ namespace PixivUtilCS
             this.IllustrationID = illustrationString[0];
             this.URLBase += this.IllustrationID;
             HtmlDocument doc = new HtmlDocument();
-            WebClient Client = new WebClient();
+            Pixiv.CookieAwareWebClient Client = new Pixiv.CookieAwareWebClient();
             String downloadedString = "";
             try
             {
-                downloadedString = Client.DownloadString(URLBase);
+                HttpWebResponse myResponse = sr(URLBase);
+                StreamReader reader = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
+                
+                using(reader)
+                {
+                    downloadedString = reader.ReadToEnd();
+                } 
+
             }
             catch { }
 
             doc.LoadHtml(downloadedString);
 
 
-            string tempTitle = doc.DocumentNode.SelectSingleNode("//div[@class='cool-work-main']").InnerHtml;
+            string tempTitle = doc.DocumentNode.SelectSingleNode("//div[@class='works_display']").InnerHtml;
             doc.LoadHtml(tempTitle);
-            this.ArtistID = doc.DocumentNode.SelectSingleNode("//a/@href").Attributes["href"].Value.Replace("member.php?id=", "");
-            tempTitle = doc.DocumentNode.SelectSingleNode("//div[@class='img-container']").InnerHtml;
-            doc.LoadHtml(tempTitle);
+            //this.ArtistID = doc.DocumentNode.SelectSingleNode("//a/@href").Attributes["href"].Value.Replace("member.php?id=", "");
+            //tempTitle = doc.DocumentNode.SelectSingleNode("//div[@class='img-container']").InnerHtml;
+            //doc.LoadHtml(tempTitle);
             this.isManga = doc.DocumentNode.SelectSingleNode("//a/@href").Attributes["href"].Value.Contains("manga");
             this.Title = doc.DocumentNode.SelectSingleNode("//img").Attributes[1].Value;
             foreach (HtmlNode n in doc.DocumentNode.Descendants("img"))
@@ -188,9 +214,15 @@ namespace PixivUtilCS
                         WebClient Client = new WebClient();
                         String downloadedString = "";
 
-                        try
-                        {
-                            downloadedString = Client.DownloadString(URLBase);
+                        try{
+                            HttpWebResponse myResponse = sr(URLBase);
+                            StreamReader reader = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
+                
+                            using(reader)
+                            {
+                                downloadedString = reader.ReadToEnd();
+                            } 
+
                         }
                         catch { }
 
@@ -243,24 +275,11 @@ namespace PixivUtilCS
                                 }
                                 else
                                 {
-                                    //How would this ever happen if you do not use the mobile version of the site? - MrFreeman
                                     s = this.BigImageURL.Replace("mobile/", "").Replace("480mw", "p" + i).Replace(".jpg", "." + this.FileFormat);
                                 }
                                 Console.WriteLine("Image url: " + s);
-                                HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(s);
-
-                                myRequest.CookieContainer = new CookieContainer();
-
-                                myRequest.Method = "GET";
-                                myRequest.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.0; zh-CN; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6";
-                                myRequest.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                                myRequest.Headers.Add("Accept-Language", "zh-cn,zh;q=0.7,ja;q=0.3");
-                                myRequest.Headers.Add("Accept-Encoding", "gzip,deflate");
-                                myRequest.Headers.Add("Accept-Charset", "gb18030,utf-8;q=0.7,*;q=0.7");
-                                myRequest.Referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=38889015";
-
                                 // Get response
-                                HttpWebResponse myResponse = (HttpWebResponse)myRequest.GetResponse();
+                                HttpWebResponse myResponse = sr(s);
 
                                 StreamReader reader = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
 
@@ -294,20 +313,7 @@ namespace PixivUtilCS
                                 s = this.BigImageURL.Replace("mobile/", "").Replace("_480mw", "").Replace(".jpg", "." + this.FileFormat);
                             }
                             Console.WriteLine("Image url: " + s);
-                            HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(s);
-
-                            myRequest.CookieContainer = new CookieContainer();
-
-                            myRequest.Method = "GET";
-                            myRequest.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.0; zh-CN; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6";
-                            myRequest.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-                            myRequest.Headers.Add("Accept-Language", "zh-cn,zh;q=0.7,ja;q=0.3");
-                            myRequest.Headers.Add("Accept-Encoding", "gzip,deflate");
-                            myRequest.Headers.Add("Accept-Charset", "gb18030,utf-8;q=0.7,*;q=0.7");
-                            myRequest.Referer = "http://www.pixiv.net/member_illust.php?mode=manga&illust_id=38889015";
-
-                            // Get response
-                            HttpWebResponse myResponse = (HttpWebResponse)myRequest.GetResponse();
+                            HttpWebResponse myResponse = sr(s);
 
                             StreamReader reader = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
 

@@ -156,7 +156,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(114, 20);
             this.textBox1.TabIndex = 9;
-            this.textBox1.Text = "44619143_big_p0.jpg";
+            this.textBox1.Text = "45238136_big_p0.jpg";
             // 
             // button2
             // 

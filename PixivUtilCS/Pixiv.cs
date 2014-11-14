@@ -37,10 +37,13 @@ namespace PixivUtilCS
             public String Title;
         }
 
+
+        public static Cookie PHPSESSID { get; set; }
+
         public class CookieAwareWebClient : WebClient
         {
             private CookieContainer cookie = new CookieContainer();
-            private Cookie PHPSESSID = new Cookie();
+            private Cookie _PHPSESSID = new Cookie();
 
             protected override WebRequest GetWebRequest(Uri address)
             {
@@ -51,14 +54,15 @@ namespace PixivUtilCS
                 }
                 if (cookie.Count > 0)
                 {
-                    PHPSESSID = cookie.GetCookies(address)[0];
+                    _PHPSESSID = cookie.GetCookies(address)[0];
+                    PHPSESSID = _PHPSESSID;
                 }
                 return request;
             }
 
             public Cookie getPHPSESSID()
             {
-                return PHPSESSID;
+                return _PHPSESSID;
             }
         }
 
