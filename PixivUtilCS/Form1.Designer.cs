@@ -76,6 +76,7 @@
             this.textBoxSearchTags.Name = "textBoxSearchTags";
             this.textBoxSearchTags.Size = new System.Drawing.Size(335, 20);
             this.textBoxSearchTags.TabIndex = 2;
+            this.textBoxSearchTags.Text = "シャム・メルルーサ";
             // 
             // label1
             // 

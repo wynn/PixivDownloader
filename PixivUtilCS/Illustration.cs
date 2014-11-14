@@ -40,28 +40,26 @@ namespace PixivUtilCS
             if (manga)
             {
                 temp = Path.GetFileNameWithoutExtension(url);
+                if(temp.Contains("_p"))
+                {
                 temp = temp.Remove(temp.IndexOf("_p") + 2, temp.Length - (temp.IndexOf("_p") + 2));
+                }
                 if(url.Contains("master"))
                 {
-                temp = temp.Replace("480x960", "1200x1200").Replace("480mw", "p" + mangaCount + "_master1200");
+                temp = temp.Replace("480x960", "1200x1200").Replace("480mw", "p" + mangaCount);
                 }
-                else
-                {
-                temp = temp.Replace("mobile/", "").Replace("480mw", "p" + mangaCount).Replace(".jpg", "." + fileExt);
-                }
-                temp += "." + fileExt;
+                temp = temp.Replace("480mw", "big_p" + mangaCount) + "." + fileExt;
+
             }
             else
             {
                 temp = Path.GetFileName(BigImageURL);
                 if (this.BigImageURL.Contains("master"))
                 {
-                    temp = temp.Replace("/c/128x128/img-master/", "/img-original/").Replace("_128x128", "_p0");
+                    temp = temp.Replace("_128x128", "_p0");
                 }
-                else
-                {
-                    temp = temp.Replace("mobile/", "").Replace("_480mw", "").Replace(".jpg", "." + this.FileFormat);
-                }
+
+                temp = temp.Replace("mobile/", "").Replace("_480mw", "").Replace("_master1200", "").Replace(".jpg", "." + this.FileFormat);
             }
 
 
