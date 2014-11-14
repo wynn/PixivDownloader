@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.IO;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace PixivUtilCS
 {
@@ -28,6 +29,19 @@ namespace PixivUtilCS
             comboBoxImageTypes.Items.Add(Pixiv.ImageSearchOptions.ILLUSTRATIONS);
             comboBoxImageTypes.Items.Add(Pixiv.ImageSearchOptions.MANGA);
             comboBoxImageTypes.SelectedIndex = 0;
+        }
+
+        private string[] FixName(string filename)
+        {
+            var name = Regex.Replace(filename, @" ?\(.*?\)", string.Empty);
+            string[] name2 = Regex.Split(name, @"\D+");
+            if (name2[1] == string.Empty)
+            {
+                name2[1] = "0";
+            }
+            Array.Resize(ref name2, 3);
+            name2[2] = textBox1.Text;
+            return name2;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -97,6 +111,21 @@ namespace PixivUtilCS
         private void Form1_Load(object sender, EventArgs e)
         {
             
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                pixiv = new Pixiv(textBoxUsername.Text, textBoxPassword.Text);
+            }
+            catch
+            {
+                MessageBox.Show("Incorrect password or username!");
+                return;
+            }
+            pixiv.DownloadImages(FixName(textBox1.Text));
+
         }
     }
 }

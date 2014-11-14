@@ -78,6 +78,13 @@ namespace PixivUtilCS
             state = new CurrentState();
         }
 
+        public void DownloadImages(String[] illustNums )
+        {
+            Illustration i = new Illustration(illustNums);
+            i.DownloadImage();
+
+        }
+
         public void DownloadImages(System.ComponentModel.BackgroundWorker worker,
         System.ComponentModel.DoWorkEventArgs e, String tags, bool r18, ImageSearchOptions imageSearchOptions, int currentPage, int maximumPagesToDownload)
         {

@@ -5,9 +5,12 @@ using System.Text;
 using System.Net;
 using System.IO;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
 
 namespace PixivUtilCS
 {
+
+
     public class Illustration
     {
         public String IllustrationID = "";
@@ -30,8 +33,92 @@ namespace PixivUtilCS
         public String Description = "";
         public bool isManga = false;
         public String bookmarks = "";
+        //Let's simplify this File Name business, shall we? - MrFreeman
+        public String tempFilename(String url, String fileExt, bool manga, int mangaCount)
+        {
+            String temp = "";
+            if (manga)
+            {
+                temp = Path.GetFileNameWithoutExtension(url);
+                temp = temp.Remove(temp.IndexOf("_p") + 2, temp.Length - (temp.IndexOf("_p") + 2));
+                if(url.Contains("master"))
+                {
+                temp = temp.Replace("480x960", "1200x1200").Replace("480mw", "p" + mangaCount + "_master1200");
+                }
+                else
+                {
+                temp = temp.Replace("mobile/", "").Replace("480mw", "p" + mangaCount).Replace(".jpg", "." + fileExt);
+                }
+                temp += "." + fileExt;
+            }
+            else
+            {
+                temp = Path.GetFileName(BigImageURL);
+                if (this.BigImageURL.Contains("master"))
+                {
+                    temp = temp.Replace("/c/128x128/img-master/", "/img-original/").Replace("_128x128", "_p0");
+                }
+                else
+                {
+                    temp = temp.Replace("mobile/", "").Replace("_480mw", "").Replace(".jpg", "." + this.FileFormat);
+                }
+            }
+
+
+            return temp;
+        }
+
+        public String useFilename = "";
 
         public String URLBase = "http://www.pixiv.net/member_illust.php?mode=medium&illust_id=";
+
+        //Let's use this if we have a filename to parse
+        public Illustration(String[] illustrationString)
+        {
+            this.IllustrationID = illustrationString[0];
+            this.URLBase += this.IllustrationID;
+            HtmlDocument doc = new HtmlDocument();
+            WebClient Client = new WebClient();
+            String downloadedString = "";
+            try
+            {
+                downloadedString = Client.DownloadString(URLBase);
+            }
+            catch { }
+
+            doc.LoadHtml(downloadedString);
+
+
+            string tempTitle = doc.DocumentNode.SelectSingleNode("//div[@class='cool-work-main']").InnerHtml;
+            doc.LoadHtml(tempTitle);
+            this.ArtistID = doc.DocumentNode.SelectSingleNode("//a/@href").Attributes["href"].Value.Replace("member.php?id=", "");
+            tempTitle = doc.DocumentNode.SelectSingleNode("//div[@class='img-container']").InnerHtml;
+            doc.LoadHtml(tempTitle);
+            this.isManga = doc.DocumentNode.SelectSingleNode("//a/@href").Attributes["href"].Value.Contains("manga");
+            this.Title = doc.DocumentNode.SelectSingleNode("//img").Attributes[1].Value;
+            foreach (HtmlNode n in doc.DocumentNode.Descendants("img"))
+            {
+                foreach (HtmlAttribute a in n.Attributes)
+                {
+                    Console.WriteLine(a.Value);
+                }
+            }
+            this.SmallImageURL = doc.DocumentNode.SelectSingleNode("//img").Attributes["src"].Value;
+            if (isManga)
+            {
+                this.BigImageURL = this.SmallImageURL.Replace("m.", "big_p" + illustrationString[1] + ".");
+            }
+            else
+            {
+                this.BigImageURL = this.SmallImageURL.Replace("_m.", ".");
+            }
+            this.FileFormat = Path.GetExtension(illustrationString[2]).Replace(".", "");
+            this.NumberOfPages = 1;
+            this.useFilename = illustrationString[2];
+
+            //Note, this does not use all the public Strings and such... because they're not necessary for a download? - MrFreeman
+        }
+
 
         public Illustration(String illustrationString)
         {
@@ -69,8 +156,10 @@ namespace PixivUtilCS
                         this.NumberOfPages = Convert.ToInt32(IllustrationComponents[19]);
                         this.isManga = true;
                     }
+
                     this.bookmarks = IllustrationComponents[22];
                     this.ArtistUsername = IllustrationComponents[24];
+                    
                 }
 
                 else
@@ -128,7 +217,8 @@ namespace PixivUtilCS
 
         public void DownloadImage()
         {
-            string localFilename = Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "." + FileFormat;
+            
+            //string localFilename = Directory.GetCurrentDirectory() + @"\Downloaded Images\" + useFilename; //It isn't even used? - MrFreeman
             string path = Directory.GetCurrentDirectory() + @"\Downloaded Images\";
 
             if (!Directory.Exists(path))
@@ -141,10 +231,11 @@ namespace PixivUtilCS
                 try
                 {
                     if (isManga)
-                    {
+                    { 
                         for (int i = 0; i < NumberOfPages; i++)
                         {
-                            if (!File.Exists(Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "_p" + i + "." + this.FileFormat))
+                            useFilename = tempFilename(BigImageURL, FileFormat, isManga, i);
+                            if (!File.Exists(Path.Combine(path, useFilename)))
                             {
                                 String s;
 
@@ -154,6 +245,7 @@ namespace PixivUtilCS
                                 }
                                 else
                                 {
+                                    //How would this ever happen if you do not use the mobile version of the site? - MrFreeman
                                     s = this.BigImageURL.Replace("mobile/", "").Replace("480mw", "p" + i).Replace(".jpg", "." + this.FileFormat);
                                 }
                                 Console.WriteLine("Image url: " + s);
@@ -175,7 +267,7 @@ namespace PixivUtilCS
                                 StreamReader reader = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
 
 
-                                using (var fileStream = File.Create(Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "_p" + i + "." + this.FileFormat))
+                                using (var fileStream = File.Create(Path.Combine(path, useFilename)))
                                 {
                                     Console.WriteLine("Downloading image " + (i + 1) + " out of " + NumberOfPages + " for illustration ID: " + IllustrationID);
                                     myResponse.GetResponseStream().CopyTo(fileStream);
@@ -190,7 +282,8 @@ namespace PixivUtilCS
 
                     else
                     {
-                        if (!File.Exists(Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "." + this.FileFormat))
+                        useFilename = tempFilename(BigImageURL, FileFormat, isManga, 0);
+                        if (!File.Exists(Path.Combine(path, useFilename)))
                         {
                             String s;
 
@@ -220,7 +313,7 @@ namespace PixivUtilCS
 
                             StreamReader reader = new StreamReader(myResponse.GetResponseStream(), Encoding.UTF8);
 
-                            using (var fileStream = File.Create(Directory.GetCurrentDirectory() + @"\Downloaded Images\" + IllustrationID + "." + this.FileFormat))
+                            using (var fileStream = File.Create(Path.Combine(path, useFilename)))
                             {
                                 Console.WriteLine("Downloading illustration ID: " + IllustrationID);
                                 Console.WriteLine();
