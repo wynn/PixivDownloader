@@ -38,9 +38,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.textBoxPassword = new System.Windows.Forms.TextBox();
             this.textBoxUsername = new System.Windows.Forms.TextBox();
             this.comboBoxAdultContent = new System.Windows.Forms.ComboBox();
@@ -49,7 +46,6 @@
             this.textBoxPages = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // comboBoxImageTypes
@@ -76,7 +72,6 @@
             this.textBoxSearchTags.Name = "textBoxSearchTags";
             this.textBoxSearchTags.Size = new System.Drawing.Size(335, 20);
             this.textBoxSearchTags.TabIndex = 2;
-            this.textBoxSearchTags.Text = "シャム・メルルーサ";
             // 
             // label1
             // 
@@ -114,7 +109,7 @@
             this.label3.Size = new System.Drawing.Size(370, 13);
             this.label3.TabIndex = 5;
             this.label3.Text = "Your Pixiv login information is needed for full functionality of the search page." +
-    " ";
+                " ";
             // 
             // label4
             // 
@@ -127,7 +122,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Controls.Add(this.textBoxPassword);
             this.groupBox1.Controls.Add(this.textBoxUsername);
             this.groupBox1.Controls.Add(this.label3);
@@ -139,41 +133,13 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Login Details";
             // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.textBox1);
-            this.groupBox2.Controls.Add(this.button2);
-            this.groupBox2.Location = new System.Drawing.Point(161, 55);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(233, 54);
-            this.groupBox2.TabIndex = 14;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Download a single image based on the file name.";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(6, 26);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(114, 20);
-            this.textBox1.TabIndex = 9;
-            this.textBox1.Text = "45238136_big_p0.jpg";
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(126, 23);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 13;
-            this.button2.Text = "GO";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // textBoxPassword
             // 
             this.textBoxPassword.Location = new System.Drawing.Point(11, 81);
             this.textBoxPassword.Name = "textBoxPassword";
             this.textBoxPassword.Size = new System.Drawing.Size(100, 20);
             this.textBoxPassword.TabIndex = 8;
+            this.textBoxPassword.Text = "PASSWORD";
             // 
             // textBoxUsername
             // 
@@ -181,6 +147,7 @@
             this.textBoxUsername.Name = "textBoxUsername";
             this.textBoxUsername.Size = new System.Drawing.Size(100, 20);
             this.textBoxUsername.TabIndex = 7;
+            this.textBoxUsername.Text = "USERNAME";
             // 
             // comboBoxAdultContent
             // 
@@ -250,8 +217,6 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -275,9 +240,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBoxPages;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.GroupBox groupBox2;
     }
 }
 

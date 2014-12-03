@@ -37,13 +37,10 @@ namespace PixivUtilCS
             public String Title;
         }
 
-
-        public static Cookie PHPSESSID { get; set; }
-
         public class CookieAwareWebClient : WebClient
         {
             private CookieContainer cookie = new CookieContainer();
-            private Cookie _PHPSESSID = new Cookie();
+            private Cookie PHPSESSID = new Cookie();
 
             protected override WebRequest GetWebRequest(Uri address)
             {
@@ -54,15 +51,14 @@ namespace PixivUtilCS
                 }
                 if (cookie.Count > 0)
                 {
-                    _PHPSESSID = cookie.GetCookies(address)[0];
-                    PHPSESSID = _PHPSESSID;
+                    PHPSESSID = cookie.GetCookies(address)[0];
                 }
                 return request;
             }
 
             public Cookie getPHPSESSID()
             {
-                return _PHPSESSID;
+                return PHPSESSID;
             }
         }
 
@@ -80,13 +76,6 @@ namespace PixivUtilCS
             }
 
             state = new CurrentState();
-        }
-
-        public void DownloadImages(String[] illustNums )
-        {
-            Illustration i = new Illustration(illustNums);
-            i.DownloadImage();
-
         }
 
         public void DownloadImages(System.ComponentModel.BackgroundWorker worker,
